@@ -105,30 +105,30 @@ export async function action({ request, params }: ActionArgs) {
   }
 
   if (typeof tagIdToHandle === "string" && tagIdToHandle) {
-    // const existingTalkingPoint = await prisma.talkingPoint.findUniqueOrThrow({
-    //   where: {
-    //     id: talkingPointId,
-    //   },
-    //   include: {
-    //     tags: true,
-    //   },
-    // });
-    // const tagExistsOnTalkingPoint = existingTalkingPoint.tags.filter(
-    //   (t) => t.id === tagIdToHandle
-    // );
-    // if (tagExistsOnTalkingPoint) {
-    //   const tagsToKeep = existingTalkingPoint.tags.filter(
-    //     (t) => t.id !== tagIdToHandle
-    //   );
-    //   await prisma.talkingPoint.update({
-    //     where: {
-    //       id: talkingPointId,
-    //     },
-    //     data: {
-    //       tags: tagsToKeep,
-    //     },
-    //   });
-    // }
+    const existingTalkingPoint = await prisma.talkingPoint.findUniqueOrThrow({
+      where: {
+        id: talkingPointId,
+      },
+      include: {
+        tags: true,
+      },
+    });
+    const tagExistsOnTalkingPoint = existingTalkingPoint.tags.filter(
+      (t) => t.id === tagIdToHandle
+    );
+    if (tagExistsOnTalkingPoint) {
+      const tagsToKeep = existingTalkingPoint.tags.filter(
+        (t) => t.id !== tagIdToHandle
+      );
+      await prisma.talkingPoint.update({
+        where: {
+          id: talkingPointId,
+        },
+        data: {
+          tags: tagsToKeep,
+        },
+      });
+    }
     // if(existingTalkingPoint?.tags.includes(tagToHandle)) {
     // }
     // const removeTag = existingTalkingPoint?.tags.includes(tagToHandle);
@@ -165,6 +165,20 @@ export async function action({ request, params }: ActionArgs) {
 }
 
 export async function loader({ params }: LoaderArgs) {
+  // await prisma.tag.createMany({
+  //   data: [
+  //     { name: "money", color: "#69F0AE", organisationId: organisation.id },
+  //     {
+  //       name: "progression",
+  //       color: "#FF5252",
+  //       organisationId: organisation.id,
+  //     },
+  //     { name: "team", color: "#7C4DFF", organisationId: organisation.id },
+  //     { name: "time", color: "#FF4081", organisationId: organisation.id },
+  //     { name: "focus", color: "#448AFF", organisationId: organisation.id },
+  //   ],
+  // });
+
   const talkingPoint = await prisma.talkingPoint.findUniqueOrThrow({
     where: {
       id: params.talkingPointId,

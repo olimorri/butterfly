@@ -19,8 +19,10 @@ export async function loader({ params }: LoaderArgs) {
     include: { comments: true, tags: true },
   });
 
+  console.log(talkingPoints);
+
   const talkingPointInfo = talkingPoints.map((tp) => {
-    const { id, title, meetingId, comments, tags, createdAt } = tp;
+    const { id, title, meetingId, comments, createdAt, tags } = tp;
 
     return {
       id: id,
@@ -32,46 +34,61 @@ export async function loader({ params }: LoaderArgs) {
     };
   });
 
+  const attendee = await prisma.user.findUniqueOrThrow({
+    where: {
+      id: meeting.inviteeId,
+    },
+  });
+
   return json({
     title: meeting.title,
     talkingPointInfo,
-    attendee: "oliver",
+    attendee,
   });
 }
 
 export default function MeetingView() {
-  const { talkingPointInfo, title } = useLoaderData<typeof loader>();
+  const { talkingPointInfo, title, attendee } = useLoaderData<typeof loader>();
 
   return (
-    <div className="flex h-full w-full flex-row">
-      <div className="flew h-full w-4/5 flex-col items-center justify-center rounded-lg bg-white p-5">
-        <div className="w-full p-3">
-          <h2 className="text-xl font-black">{title}</h2>
-        </div>
-        <div className="m-auto mb-5 flex h-full flex-row">
-          <div className="h-full w-full p-3">
-            <div className="m-auto mb-5 flex h-3/5 flex-col border-t border-neutral-300">
-              <h3 className="my-3 font-black">Talking Points</h3>
-              {talkingPointInfo.map((tp) => {
-                return (
-                  <TalkingPointItem
-                    key={tp.id}
-                    talkingPointId={tp.id}
-                    talkingPointTitle={tp.title}
-                    commentCount={tp.commentCount}
-                    tags={tp.tags}
-                    // createTalkingPoint={handleTalkingPointAdd}
-                  />
-                );
-              })}
-            </div>
-            <div className="m-auto my-5 flex flex-col border-t">
-              <h3 className="my-5 font-black">Actions</h3>
-            </div>
+    <div className="flex flex-1 flex-row">
+      <div className="flex w-3/5 flex-col items-center justify-center align-middle">
+        <div className="flex h-full w-full flex-1 flex-col px-5 py-10 align-middle">
+          <div>
+            <h1 className="text-3xl font-black">{title}</h1>
+            <p className="text-xs text-slate-500">
+              {new Date().toLocaleDateString()}
+            </p>
+          </div>
+
+          <div className="mt-5 flex-1 overflow-auto rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+            <p className="border-b-2 border-b-slate-200 text-sm font-bold uppercase">
+              Talking Points
+            </p>
+            {talkingPointInfo.map((tp) => {
+              console.log(tp.tags);
+
+              return (
+                <TalkingPointItem
+                  key={tp.id}
+                  talkingPointId={tp.id}
+                  talkingPointTitle={tp.title}
+                  commentCount={tp.commentCount}
+                  tags={tp.tags}
+                  // createTalkingPoint={handleTalkingPointAdd}
+                />
+              );
+            })}
           </div>
         </div>
       </div>
-      <div className="h-full w-1/5 bg-red-100 p-3"></div>
+      <div className="flex w-2/5 flex-1 flex-col px-5 py-10">
+        <h1 className="text-3xl font-black">Insights</h1>
+        <p className="text-xs text-slate-500">
+          What are you and {attendee.firstName} talking about?
+        </p>
+        <div className="mt-5 flex flex-1 flex-col rounded-md border border-slate-200 bg-white p-5 shadow-sm"></div>
+      </div>
       <Outlet />
     </div>
   );
@@ -89,29 +106,27 @@ const TalkingPointItem = ({
   tags: SerializeFrom<Tag[]>;
 }) => {
   return (
-    <Link to={`talking-point/${talkingPointId}`}>
-      <div className="my-1 flex w-full cursor-pointer flex-row justify-between rounded-lg border border-neutral-200 bg-white p-3 text-sm font-medium  focus-within:bg-slate-200 hover:border-neutral-300 hover:bg-neutral-50 hover:shadow-sm">
-        <div>
-          <p className="py-1">{talkingPointTitle}</p>
-        </div>
-        <div className="flex flex-row py-1">
+    <Link
+      to={`talking-point/${talkingPointId}`}
+      className="mt-5 mb-5 flex w-full flex-row items-center rounded-md border p-3 drop-shadow-sm hover:bg-slate-50 "
+    >
+      <div className="flex w-full flex-row items-center justify-between">
+        <p className="text-sm">{talkingPointTitle}</p>
+        <div className="flex space-x-2">
           {tags.map((t) => {
             return (
               <button
                 key={t.id}
-                className="mr-2 rounded-lg border p-1 text-2xs font-light"
+                className="w-content rounded-lg p-1 text-xs text-white"
                 style={{ backgroundColor: t.color }}
               >
                 {t.name}
               </button>
             );
           })}
-          <div className="m-auto flex w-full flex-row items-center rounded-lg border border-neutral-400 p-1 font-light">
-            <span>
-              <ChatBubbleLeftIcon className="inline-block h-4 w-4" />
-            </span>
-            <p className="ml-1 self-end text-xs">{commentCount}</p>
-          </div>
+          <p className="w-content rounded-lg bg-slate-100 p-1 text-xs">
+            {commentCount} comments
+          </p>
         </div>
       </div>
     </Link>

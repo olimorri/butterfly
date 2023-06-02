@@ -1,21 +1,18 @@
-import type { Meeting, User } from "@prisma/client";
+import type { Meeting } from "@prisma/client";
 import { prisma } from "~/db.server";
 
 export function createMeeting({
   date,
-  userId,
-}: Pick<Meeting, "date"> & {
-  userId: User["id"];
-}) {
+  authorId,
+  title,
+  inviteeId,
+}: Pick<Meeting, "date" | "title" | "inviteeId" | "authorId">) {
   return prisma.meeting.create({
     data: {
       date,
-      ownerId: userId,
-      users: {
-        connect: {
-          id: userId,
-        },
-      },
+      authorId,
+      title,
+      inviteeId,
     },
   });
 }

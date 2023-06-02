@@ -168,7 +168,7 @@ export default function Join() {
                 autoComplete="email"
                 aria-invalid={actionData?.errors?.email ? true : undefined}
                 aria-describedby="email-error"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
+                className="text-lg w-full rounded border border-gray-500 px-2 py-1"
               />
               {actionData?.errors?.email && (
                 <div className="pt-1 text-red-700" id="email-error">
@@ -197,7 +197,7 @@ export default function Join() {
                 autoComplete="firstName"
                 aria-invalid={actionData?.errors?.firstName ? true : undefined}
                 aria-describedby="firstName-error"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
+                className="text-lg w-full rounded border border-gray-500 px-2 py-1"
               />
               {actionData?.errors?.firstName && (
                 <div className="pt-1 text-red-700" id="firstName-error">
@@ -226,7 +226,7 @@ export default function Join() {
                 autoComplete="lastName"
                 aria-invalid={actionData?.errors?.lastName ? true : undefined}
                 aria-describedby="lastName-error"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
+                className="text-lg w-full rounded border border-gray-500 px-2 py-1"
               />
               {actionData?.errors?.lastName && (
                 <div className="pt-1 text-red-700" id="lastName-error">
@@ -255,7 +255,7 @@ export default function Join() {
                 autoComplete="password"
                 aria-invalid={actionData?.errors?.password ? true : undefined}
                 aria-describedby="password-error"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
+                className="text-lg w-full rounded border border-gray-500 px-2 py-1"
               />
               {actionData?.errors?.password && (
                 <div className="pt-1 text-red-700" id="password-error">

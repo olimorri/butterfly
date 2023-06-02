@@ -9,11 +9,30 @@ generator client {
 
 // todo - om:
 //   - need to add a concept of organisation
-//   - this should be the anchor point for tags, users and also related to meetings
+//   - this should be the anchor point for tags, users and also related to
+//     meetings
+
+model Organisation {
+  id   String @id @default(cuid())
+  name String @unique
+  email String
+
+  users   User[]
+
+  tags Tag[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
+}
 
 model User {
   id    String @id @default(cuid())
   email String @unique
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  organisationId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -22,28 +41,17 @@ model User {
   lastName String
 
   password Password?
-  notes    Note[]
+
   talkingPoints TalkingPoint[]
-  meetings Meeting[]
+
   role String
 
   comments Comment[]
 
+  authoredMeetings Meeting[] @relation("user_authored_meetings")
+  invitedMeetings  Meeting[] @relation("user_invited_meetings")
+
   color String
-}
-
-model Note {
-  id    String @id @default(cuid())
-  title String
-  body  String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String
-
-  
 }
 
 model Meeting {
@@ -52,8 +60,12 @@ model Meeting {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users User[]
-  ownerId String @unique
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade, name: "user_authored_meetings")
+  authorId String
+  
+  invitee User @relation(fields: [inviteeId], references: [id], onDelete: Cascade, onUpdate: Cascade, name: "user_invited_meetings")
+  inviteeId String
+
   title String
 
   talkingPoints TalkingPoint[]
@@ -75,8 +87,10 @@ model TalkingPoint {
   meeting   Meeting   @relation(fields: [meetingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   meetingId String
 
-  comments Comment[]
   tags Tag[]
+
+  comments Comment[]
+  // tagIds String[]
 }
 
 model Comment {
@@ -102,7 +116,9 @@ model Tag {
 
   name String @unique
   color String @unique
-  
+
+  organisation   Organisation   @relation(fields: [organisationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  organisationId String
 
   talkingPoints TalkingPoint[]
 
